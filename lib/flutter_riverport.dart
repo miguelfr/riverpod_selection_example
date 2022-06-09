@@ -18,6 +18,26 @@ final selectedCategories = Provider((ref) => ref
 final allCategories =
     Provider((ref) => ref.watch(categoryListProvider).keys.toList());
 
+CategoryList createCategoryList(List<String> values) {
+  final Map<String, bool> categories = Map();
+  values.forEach((value) {
+    categories.putIfAbsent(value, () => false);
+  });
+  return CategoryList(categories);
+}
+
+class CategoryList extends StateNotifier<Map<String, bool>> {
+  CategoryList(Map<String, bool> state) : super(state);
+
+  void toggle(String item) {
+    final currentValue = state[item];
+    if (currentValue != null) {
+      state[item] = !currentValue;
+      state = state;
+    }
+  }
+}
+
 class MultipleCategorySelection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -31,6 +51,7 @@ class MultipleCategorySelection extends StatelessWidget {
         body: Column(
           children: [
             CategoryFilter(),
+            //? Linea Verde separador
             Container(
               color: Colors.green,
               height: 2,
@@ -46,11 +67,15 @@ class MultipleCategorySelection extends StatelessWidget {
 class CategoryFilter extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedCategoryList = ref.watch(selectedCategories);
+    //! La lista completa
     final categoryList = ref.watch(allCategories);
+    //! La lista de seleccionados
+    final selectedCategoryList = ref.watch(selectedCategories);
+    //! Me sirve para poder usar una funcion dentro del StateNotifier
     final provider = ref.watch(categoryListProvider.notifier);
 
     return Flexible(
+      //! Muestra la lista funcionando
       child: ListView.builder(
           itemCount: categoryList.length,
           itemBuilder: (BuildContext context, int index) {
@@ -62,6 +87,15 @@ class CategoryFilter extends ConsumerWidget {
               title: Text(categoryList[index]),
             );
           }),
+      //! Solamente muestra la lista sin opcion de seleccionar!
+      // ListView.builder(
+      //     itemCount: categoryList.length,
+      //     itemBuilder: (BuildContext context, int index) {
+      //       return Padding(
+      //         padding: const EdgeInsets.all(8.0),
+      //         child: Text(categoryList[index]),
+      //       );
+      //     }),
     );
   }
 }
@@ -81,25 +115,5 @@ class SelectedCategories extends ConsumerWidget {
             );
           }),
     );
-  }
-}
-
-CategoryList createCategoryList(List<String> values) {
-  final Map<String, bool> categories = Map();
-  values.forEach((value) {
-    categories.putIfAbsent(value, () => false);
-  });
-  return CategoryList(categories);
-}
-
-class CategoryList extends StateNotifier<Map<String, bool>> {
-  CategoryList(Map<String, bool> state) : super(state);
-
-  void toggle(String item) {
-    final currentValue = state[item];
-    if (currentValue != null) {
-      state[item] = !currentValue;
-      state = state;
-    }
   }
 }
